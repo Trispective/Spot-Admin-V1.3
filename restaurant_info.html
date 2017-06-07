@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Spot </title>
+  <style>
+  .hidden{
+   visibility:hidden;
+}
+  </style>
+</head>
+
+<body>
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+
+
+ 
+<a class = "link" href="control_panel.html"> Control panel </a> 
+&nbsp;&nbsp;
+<a class = "link" href="msg.html"> Send a message </a>
+&nbsp;&nbsp;
+<a class = "link" href="edit_account.html"> Edit website </a> 
+&nbsp;&nbsp;
+<a class = "link" href="logout.html"> Logout </a>
+</div>
+<br><br><br><br>
+<h3> Restaurant information: </h3>
+<div class="text">
+<form action="" method="get">
+<table>
+<tr>
+<td height="40"> User Reference Num (UID): </td> <td id="uid" height="40"> </td>
+</tr
+<tr>
+<td height="40"> Name: </td> <td id="name" height="40"> </td>
+</tr>
+<tr>
+<td height="40"> Email </td> <td id= "email" height="40"></td>
+</tr>
+<tr>
+<td height="40"> Phone number:</td> <td id="phone_num" height="40"> </td>
+</tr>
+<tr>
+<td height="40"> Australian Business Number (ABN):</td> <td id="ABN" height="40"> </td>
+</tr>
+<tr>
+<td height="40"> Location: </td> <td id="loc" height="40"> </td>
+</tr>
+</table>
+<br><br>
+<input type="button" id="Accept" value="Accept" class="sub" style="margin-left: 50px;" onclick="return approve();">
+<input type="button" id="Reject" value="Reject" class="sub" style="margin-left: 70px; color: #BB0505;" onclick="return reject();">
+<br><br>
+<p id="acceptance_msg" style="margin-left: 30px; font-size: 1.0em;"> This order has been accepted. 
+<img src="checkmark.png" style="width:30px;height:30px;"></p>
+<p id="rejection_msg" style="margin-left: 30px; font-size: 1.0em;"> This order has been rejected.
+<img src="delete.png"style="width:20px;height:20px;"></p> 
+<br><br>
+</form>
+<script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+<script>
+  var database = firebase.database();
+
+
+  document.getElementById("rejection_msg").className = 'hidden';
+  document.getElementById("acceptance_msg").className = 'hidden';
+(function(){
+	 firebase.auth().onAuthStateChanged(function(user) {
+		if (!user) {
+                window.location = "unauthorized.html";
+                }
+         });
+})();
+  
+  function getUrlVars() {
+var vars = {};
+var parts = window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m,key,value) {
+vars[key] = value;
+});
+return vars;
+}
+
+var id = getUrlVars()["source"];
+
+
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id);
+ dbRef.on('value', snap => document.getElementById("uid").innerHTML = snap.key);
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id).child("name");
+ dbRef.on('value', snap => document.getElementById("name").innerHTML = snap.val());
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id).child("email");
+ dbRef.on('value', snap => document.getElementById("email").innerHTML = snap.val());
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id).child("phoneNumber");
+ dbRef.on('value', snap => document.getElementById("phone_num").innerHTML = snap.val());
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id).child("abn");
+ dbRef.on('value', snap => document.getElementById("ABN").innerHTML = snap.val());
+
+ var dbRef=firebase.database().ref().child("DF").child("Users").child(id).child("location");
+ dbRef.on('value', snap => document.getElementById("loc").innerHTML = snap.val());
+
+
+function approve()
+{
+    if (confirm("Please press OK to confirm your acceptance.") == true) {
+    firebase.database().ref().child("DF").child("Users").child(id).child("active").set("1");
+      document.getElementById("acceptance_msg").className = '';
+      var btn= document.getElementById("Reject");
+      btn.disabled = true;
+
+    var link = "mailto:"+ escape(document.getElementById("email").innerHTML)
+             + "?cc="
+             + "&subject=" + escape("Spot")
+             + "&body= Hello " + escape(document.getElementById("name").innerHTML) + escape(" your order has been accepted.")
+               window.location.href = link;
+    } 
+//email
+}
+
+function reject()
+{
+    if (confirm("Are you sure you want to reject this order!") == true) {
+        //var person = prompt("Please enter your rejection reason, or press ok to continue.");        
+        document.getElementById("rejection_msg").className = '';
+        var btn= document.getElementById("Accept");
+        btn.disabled = true;
+        
+             var link = "mailto:"+ escape(document.getElementById("email").innerHTML)
+             + "?cc="
+             + "&subject=" + escape("This is my subject")
+             + "&body= Hello " + escape(document.getElementById("name").innerHTML)  + escape(" your order has been rejected.")
+             window.location.href = link;
+             firebase.database().ref().child("DF").child("Users").child(id).remove();
+    }   
+}
+
+function send_reason()
+{
+firebase.database().ref().child("DF").child("Users").child(id).remove();
+}
+
+
+</script>
+
+
+</div>
+</body>
+</html>

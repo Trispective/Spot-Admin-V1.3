@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Spot </title>
+
+</head>
+
+<body>
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+
+
+<a class = "link" href="control_panel.html"> Control panel </a> 
+&nbsp;&nbsp;
+<a class = "link" href="msg.html" style="color:#4EB0AC;"> Send a message </a>
+&nbsp;&nbsp;
+<a class = "link" href="edit_account.html"> Edit website </a> 
+&nbsp;&nbsp;
+<a class = "link" href="logout.html"> Logout </a> 
+<br><br><br><br>
+</div>
+<br>
+<h3> Send a message to your coustomers </h3>
+<div class="text">
+<form action="" method="get">
+
+		<h4>Title:</h4>
+  	<input type="text" id="title" style="margin-left: 50px;" required>
+	  	
+   <h4> Message:</h4>
+    <textarea id="msg" placeholder="Please enter your text here.." style="margin-left: 50px; width: 600px; height:120px;" required></textarea>
+    <br><br>		
+    <input type="button" value="submit" name="submit" class="sub" style="margin-left: 50px;" onclick="return send_email();">
+</form>
+<div id ="e"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+<script>
+
+    
+user_email="";
+ count="1";
+ function send_email()
+  {
+      
+  var userDataRef = firebase.database().ref().child("DF").child("Users")
+userDataRef.once("value").then(function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+     // var childData = childSnapshot.val();              // childData will be the actual contents of the child
+
+ 
+ user_email = childSnapshot.val().email+","+user_email;
+count++;
+      });
+        var link = "mailto:"+ user_email
+             + "?cc="
+             + "&subject=" + escape(document.getElementById("title").value)
+             + "&body= " + escape(document.getElementById("msg").value)
+               window.location.href = link;
+   });
+     }
+</script>
+</body>
+</html>

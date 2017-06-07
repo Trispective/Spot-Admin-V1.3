@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Spot </title>
+</head>
+
+<body>
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+
+
+<a class = "link" href="control_panel.html" style="color:#4EB0AC;"> Control panel </a> 
+&nbsp;&nbsp;
+<a class = "link" href="msg.html"> Send a message </a>
+&nbsp;&nbsp;
+<a class = "link" href="edit_account.html"> Edit website </a>
+&nbsp;&nbsp;
+<a class = "link" href="logout.html"> Logout </a>  
+<br><br><br><br>
+</div>
+<br>
+<h3> Admin control panel </h3>
+<div class="text">
+<p> Here are the restaurants that waiting your acceptance. </p>
+
+<table>
+
+</table>
+
+<script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+<script>
+ (function(){
+	 firebase.auth().onAuthStateChanged(function(user) {
+		if (user) {
+                     var U = user.uid;
+   		     console.log(U);
+                     var table = document.getElementsByTagName('table')[0];
+ 			var userDataRef = firebase.database().ref().child("DF").child("Users")
+                        userDataRef.once("value").then(function(snapshot) {
+                        	snapshot.forEach(function(childSnapshot) {
+                        		// var childData = childSnapshot.val();              // childData will be the actual contents of the child
+                        		var active =childSnapshot.val().active;
+                               		if(active=="0") {
+                                		// append column to the HTML table
+                                		//var user = firebase.auth().currentUser;
+     			   		     	var user= childSnapshot.key; 
+        					var tr = document.createElement('tr');
+        					var td = document.createElement('td');
+       						td.height=30;
+        					var link = "restaurant_info.html?source="+user;
+        					var element = document.createElement("a");
+        					element.setAttribute("href", link);
+        					element.innerHTML = childSnapshot.val().name;
+ 						td.appendChild(element);
+ 						tr.appendChild(td);
+						table.appendChild(tr);
+    		                	}
+ 
+    		        	});
+               	        });
+                }
+               
+                else {
+                      window.location = "unauthorized.html";
+                }
+         });
+})();
+
+/* var table = document.getElementsByTagName('table')[0];
+
+
+ var userDataRef = firebase.database().ref().child("DF").child("Users")
+ userDataRef.once("value").then(function(snapshot) {
+    snapshot.forEach(function(childSnapshot) {
+     // var childData = childSnapshot.val();              // childData will be the actual contents of the child
+    var active =childSnapshot.val().active;    
+    
+    if(active=="0")
+    {
+    // append column to the HTML table
+    //var user = firebase.auth().currentUser;
+   // var user= childSnapshot.key;
+    
+    var tr = document.createElement('tr');
+    var td = document.createElement('td');
+    td.height=30;
+   var link = "restaurant_info.html?source="+user;
+var element = document.createElement("a");
+element.setAttribute("href", link);
+element.innerHTML = childSnapshot.val().name;
+   td.appendChild(element);
+   tr.appendChild(td);
+   table.appendChild(tr);
+
+ }
+
+       });
+ });
+}());*/
+</script>
+
+</div>
+</body>
+</html>

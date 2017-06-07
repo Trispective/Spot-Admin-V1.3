@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+  <title> Spot </title>
+</head>
+<body>
+<script type="text/javascript">
+// Get a reference to the database service
+var database = firebase.database();
+function signuser()
+{
+ event.preventDefault();
+ var ref = database.ref('admin');
+ var auth = firebase.auth();
+ auth.signInWithEmailAndPassword(document.getElementById("UserEmail").value, document.getElementById("Rpassword").value).then(function(user) {
+ var uid = user.uid;
+ ref.once('value', function (snapshot) {
+    if (snapshot.hasChild(uid)) {
+       window.location = "control_panel.html";
+
+    }
+    else {
+       alert("Wrong User name or password");
+       document.getElementById("UserEmail").value = null;
+       document.getElementById("Rpassword").value =null;
+}
+});
+}, function(error) {
+  // An error happened.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  if(error){
+   alert("Wrong User name or password");
+   document.getElementById("UserEmail").value = null;
+   document.getElementById("Rpassword").value =null;
+  }
+});
+}
+
+/*function signuser()
+{
+event.preventDefault();
+firebase.auth().signInWithEmailAndPassword(document.getElementById("UserEmail").value, document.getElementById("Rpassword").value).catch(function(error) {
+  var errorCode = error.code;
+  var errorMessage = error.message;
+ // var user = firebase.auth().currentUser;
+  if(errorCode)
+    {
+	    alert("Wrong User name or password");
+	    return false;
+    }
+}).then(function(user){
+  window.location = "control_panel.html";
+});
+}
+*/
+</script>
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+</div>
+
+<br>
+
+<h3> Login </h3>
+<div class="text">
+	<form name="loginForm" onsubmit= "signuser()">
+		<table>
+		<tr>
+		<td><h4> Username: </h4> </td>
+		<td><input type="email" name="UserEmail" id="UserEmail" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td><h4>Password:</h4></td>
+		<td><input type="password" name="Rpassword" id="Rpassword" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td><input type="submit" name="submit" class="sub" value="Login" ></td>
+		</tr>
+		</table>
+		<br>
+		<a href="forgot_password.html">Forgot your password?</a>
+	
+
+	</form>
+	</div>
+</body>
+</html>

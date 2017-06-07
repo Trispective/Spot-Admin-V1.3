@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title> Spot </title>
+ 
+</head>
+
+<body>
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+
+
+<a class = "link" href="control_panel.html"> Control panel </a> 
+&nbsp;&nbsp;
+<a class = "link" href="msg.html"> Send a message </a>
+&nbsp;&nbsp;
+<a class = "link" href="edit_account.html" style="color:#4EB0AC;"> Edit website </a>
+&nbsp;&nbsp;
+<a class = "link" href="logout.html"> Logout </a>  
+<br><br><br><br>
+</div>
+<br>
+<h3> Edit website information</h3>
+<div class="text">
+<form method="post" name="contact_form">
+
+
+   <h4> About us:</h4>
+    <textarea id="about_us"  style="margin-left: 50px; width: 600px; height:120px; font-size: 0.9em;" ></textarea>
+    <br><br>		
+   <h4> Contact email:</h4>
+   <textarea type="email" id="contact_us" style="margin-left: 50px; width: 350px; height:30px; font-size: 0.9em;"></textarea>
+	 
+        <br><br>
+    <input type="button" value="Save" class="sub" style="margin-left: 50px;" onclick="return con_save()">
+     <input type="button" value="Cancel" id="cancel" class="sub" style="margin-left: 80px;" onclick="return con_cancel()">
+</form>
+<br><br>
+<div id="sec" style="margin-left: 30px; font-size: 0.90em;"></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+<script>
+
+var database = firebase.database();
+
+ var about_us= document.getElementById("about_us");
+var contact_us= document.getElementById("contact_us");
+  
+ var dbRef=firebase.database().ref().child("About_us");
+ dbRef.on('value', snap => about_us.innerHTML = snap.val());
+ 
+
+ var dbRef=firebase.database().ref().child("contact_email");
+ dbRef.on('value', snap => contact_us.innerHTML = snap.val());
+(function(){
+	 firebase.auth().onAuthStateChanged(function(user) {
+		if (!user) {
+                window.location = "unauthorized.html";
+                }
+         });
+})();
+
+ function con_save()
+ {
+ if (confirm("Please press OK to confirm your change.") == true) {
+
+    
+   var contact_us= document.getElementById("contact_us").value;
+    var about_us= document.getElementById("about_us").value;
+
+    
+  firebase.database().ref().child("contact_email").set(contact_us);
+  firebase.database().ref().child("About_us").set(about_us);
+   
+
+    var msg= document.getElementById("sec");
+    msg.innerHTML="The information has been updated successfully.";
+    
+          var btn= document.getElementById("cancel");
+      btn.disabled = true;
+ }
+ }
+ 
+ function con_cancel()
+ {
+ if (confirm("Are you sure you want to cancel your change.") == true) {
+
+ location = 'control_panel.html';
+ }
+ }
+</script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html >
+<head>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://www.gstatic.com/firebasejs/4.0.0/firebase.js"></script>
+<script src="firebase.js">
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDLJqKZeSCFIRgYdjH3-JIw3M-EaSYLvUc&callback=initMap" async defer > </script>
+
+  <title> Business Registration </title>
+</head>
+<body>
+ <script type="text/javascript">
+ function checkPasswordMatch() {
+    var Rpass = document.getElementById("Rpassword").value;
+    var RCpass = document.getElementById("RCpassword").value;
+    if (Rpass != RCpass)
+	{
+        alert("Passwords do not match!");
+		document.getElementById('RCpassword').value= null ;
+	}
+}
+function checkphone()
+{
+  var x = document.getElementById("Rphone").value;
+  if(x.length != 10 || isNaN(x) )
+  {
+    alert("Wrong phone format");
+	document.getElementById('Rphone').value= null ;
+  }
+}
+function checkABN()
+{
+  var x = document.getElementById("RABN").value;
+  if(x.length != 11 || isNaN(x) )
+  {
+    alert("Wrong ABN format");
+	document.getElementById('RABN').value= null ;
+  }
+}
+function checkpostcode()
+{
+  var x = document.getElementById("Rpostcode").value;
+  if(x <= 2999 || x >= 4000 || isNaN(x) )
+  {
+    alert("Wrong postcode format");
+	document.getElementById('Rpostcode').value= null ;
+  }
+}
+// Get a reference to the database service
+var database = firebase.database();
+function writeUserData(name, email, password, abn, phoneNumber, street_no, street_name, suburb, postCode, active, type, aboutUs, coverImageurl, restaurantType, profileImageurl, coverImageurl, availableTime, longitude ,latitude) {
+  event.preventDefault();
+  firebase.auth().createUserWithEmailAndPassword(document.getElementById("UserEmail").value, document.getElementById("Rpassword").value).then(function(user){
+  var user = firebase.auth().currentUser;
+  user.sendEmailVerification();
+  var Ruid = user.uid;
+  var new_ref = database.ref('DF/Users/'+Ruid);
+  new_ref.set({
+        email: document.getElementById("UserEmail").value,
+        name: document.getElementById("ResName").value,
+	abn: document.getElementById("RABN").value, 
+	phoneNumber: document.getElementById("Rphone").value,
+	suburb: document.getElementById("Rsuburb").value,
+	postCode: document.getElementById("Rpostcode").value,
+        restaurantType: document.getElementById("Rtype").value,
+	location :"",
+	menu: "",
+	pending: "",
+	active: "0",
+	type: "restaurant",
+	aboutUs: "",
+	coverImageurl: "",
+	profileImageurl: "",
+	availableTime: "00:00-00:00",
+	longitude: "",
+	latitude: ""
+  });
+  new_ref.child("menu").set("none");
+  new_ref.child("menu/none").set({none: 'none'});
+  new_ref.child("pending").set({none: 'none'});
+  var STNO = document.getElementById("RSTNo").value;
+  var SNAME = document.getElementById("RSname").value;
+  var SUB = document.getElementById("Rsuburb").value;
+  var POSTC = document.getElementById("Rpostcode").value;
+  new_ref.child("location").set(STNO+" "+SNAME+", "+SUB+" VIC "+POSTC);
+  var str_address = new_ref.child('location').once('value').then(function(snapshot) {
+  var address = snapshot.val();
+  initMap(address, Ruid);
+  if(Ruid)
+  {
+  console.log(Ruid);
+  checkall(Ruid);
+  }
+});
+}, function(error) {
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  if(errorCode == "auth/email-already-in-use"){
+  console.log(errorCode);
+  alert("The entered email is already registerd");
+  document.getElementById("UserEmail").value= null ;
+}
+else if(errorCode == "auth/invalid-email"){
+console.log(errorCode);
+  alert("The entered email is invalid");
+  document.getElementById("UserEmail").value= null ;
+}
+else if(errorCode == "auth/weak-password"){
+console.log(errorCode);
+  alert("The password enterd is weak");
+  document.getElementById("Rpassword").value= null ;
+  document.getElementById("RCpassword").value= null ;
+}
+});
+}
+function checkall(Uuid)
+{
+var database = firebase.database();
+var U = Uuid;
+var usersRef = database.ref("DF/Users/");
+  usersRef.child(U).once('value', function(snapshot) {
+    var exists = (snapshot.val() !== null);
+    userExistsCallback(exists);
+  });
+}
+function userExistsCallback(exists) {
+  if (exists) {
+    location = 'registration_comp.html';
+  } else {
+    location = 'registration_incomp.html';
+  }
+}
+
+function initMap(addr, Uuid){
+var database = firebase.database();
+var geocoder = new google.maps.Geocoder();
+var result1 =null;
+var result2 =null;
+geocoder.geocode( { 'address': addr}, function(results, status) {
+     if (status == 'OK' && Uuid) {
+         result1 = results[0].geometry.location.lat();
+         result2 = results[0].geometry.location.lng();
+        // console.log(result1);
+        // console.log(result2);
+         var STR_lat = result1.toString();
+         var STR_lng = result2.toString();
+         var newlatlong = database.ref('DF/Users/'+Uuid);
+         newlatlong.child("latitude").set(STR_lat);
+         newlatlong.child("longitude").set(STR_lng);
+		}
+    // else {
+    //     console.log("error");
+    // }
+    });
+} 
+</script>
+
+<div id="logo" >
+<img src="logo.png" style="width:150px;height:130px;">
+
+<h1> Spot </h1>
+<h2> A social media app for food. </h2>
+<br>
+<a href="">
+<img src="app.png" style="width:250px;height:90px;">
+</a>
+<br><br><br>
+
+<a class = "link" href="index.html"> Home </a>
+&nbsp;&nbsp;
+<a class = "link" href="sign_up.html" style="color:#4EB0AC;"> Business Registration </a>
+&nbsp;&nbsp;
+<a class = "link" href="about_us.html"> About us </a>
+&nbsp;&nbsp;
+<a class = "link" href="contact_us.html"> Contact us </a>
+<br>
+</div>
+<h3> Business Registration </h3>
+<div class="text">
+<form name="RegistrationForm" onsubmit= "writeUserData()">
+		<Table>
+		<tr>
+		<td><h4> Restaurant name: </h4> </td>
+		<td><input type="text" name="ResName" id="ResName" class="textfield" required= "true"= "true"> </td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter resturant name and branch</span> </td>
+		</tr>
+		<tr>
+		<td></td>
+		</tr>
+                <tr>
+                <td><h4>Restaurant type:</h4></td>
+		<td><input type="text" name="Rtype" id="Rtype" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter your restaurant type.</span> </td>
+		</tr>
+		<tr>
+		<td></td>
+		</tr>
+		<tr>
+		<td><h4>Email:</h4></td>
+		<td><input type="text" name="UserEmail" id="UserEmail" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter your email for registration</span> </td>
+		</tr>
+		<tr>
+		<td><h4>password:</h4></td>
+		<td><input type="password" name="Rpassword" id="Rpassword" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter a password for registration</span> </td>
+		</tr>
+		<tr>
+		<td><h4>Confirm Password:</h4></td>
+		<td><input type="password" name="RCpassword" id="RCpassword" class="textfield" required= "true"= "true" onChange="checkPasswordMatch()"></td>
+		</tr>
+		<tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please retype the entered password</span> </td>
+		</tr>
+		<td></td>
+		</tr>
+		<tr>
+		<td><h3 style="	margin-left: 0px;">Restaurant information: </h3></td>
+		<td></td>
+		</tr>
+		<tr>
+		<td><h4>ABN :</h4></td>
+		<td><input type="text" name="RABN" id="RABN" class="textfield" required= "true"= "true" onChange="checkABN()"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter your 11 digits ABN number.</span> </td>
+		</tr>
+		<tr>
+		<td></td>
+		</tr>
+		<tr>
+		<td><h4>Phone number:</h4></td>
+		<td><input type="text" name="Rphone" id="Rphone" class="textfield" required= "true"= "true" onChange="checkphone()"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter your phone number without the country code For Example: 04xxxxxxxx, 03xxxxxxxx.</span> </td>
+		</tr>
+		<tr>
+		<td></td>
+		</tr>
+		<tr>
+		<td><h4>Street number:</h4></td>
+		<td><input type="text" name="RSTNo" id="RSTNo" class="textfield"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter Street Number. For Example: 400, 1/400 , 1-400</span> </td>
+		</tr>
+		<tr>
+		<td><h4>Street name:</h4></td>
+		<td><input type="text" name="RSname" id="RSname" class="textfield" required= "true"= "true"></td>
+		</tr>
+                <tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter Street Name and Type. For Example: Collins St, Collins Ln</span> </td>
+		</tr>
+		<tr>
+		<td><h4>Suburb:</h4></td>
+		<td><input type="text" name="Rsuburb" id="Rsuburb" class="textfield" required= "true"= "true"></td>
+		</tr>
+		<tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter Suburb name. For example: Carlton or Melbourne </span> </td>
+		</tr>
+		<tr>
+		<td><h4>Postcode:</h4></td>
+		<td><input type="text" name="Rpostcode" id="Rpostcode" class="textfield" required= "true"= "true" onChange="checkpostcode()"></td>
+		</tr>
+	        <tr>
+		<td></td>
+		<td> 	 <span class="hint">Please enter the postcode</span> </td>
+		</tr>
+		<tr>
+		<td></td>
+		</tr>
+		</table>
+		<br><br>
+		<br><br>
+		<input type="submit" name="submit" value="submit" class="sub">
+		</form>
+</div>
+
+</body>
+</html>
